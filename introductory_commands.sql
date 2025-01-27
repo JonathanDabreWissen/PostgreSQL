@@ -1,50 +1,43 @@
-insert into EMP values
-('Raju', 25),
-('Suman', 33),
-('Ganesh', 27),
-('Anusha', 38)
-
-select * from EMP;
-
-delete from EMP;
-
-select datname from pg_database;
-
-select * from pg_database;
-
-
-create table emp(
-	eid int primary key,
-	name varchar(15) not null,
-	age smallint,
-	salary decimal(8, 2) default 15000.00,
-	designation varchar(20) not null 
-);
+select * from emp;
 
 drop table emp;
 
-create table emp(
-	eid serial primary key,
-	name varchar(15) not null,
-	age smallint,
-	salary decimal(8, 2) default 15000.00,
-	designation varchar(20) not null 
+CREATE TYPE designation_enum AS ENUM ('Programmer', 'Tester', 'Admin', 'Manager');
+
+
+CREATE TABLE employees(
+	eid SERIAL PRIMARY KEY,
+	name VARCHAR(20) NOT NULL,
+	age SMALLINT,
+	gender VARCHAR(15) NOT NULL,
+	salary NUMERIC(8, 2) DEFAULT 15000.00,
+	designation designation_enum NOT NULL,
+	email_id VARCHAR(255) NOT NULL,
+	married BOOLEAN NOT NULL,
+	joining_date DATE DEFAULT CURRENT_DATE,
+	manager_id int,
+	
+	CONSTRAINT fk_manager FOREIGN KEY (manager_id) REFERENCES employees (eid),
+	CONSTRAINT check_email_id CHECK(email_id ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
+	CONSTRAINT check_age CHECK(age>=21 AND age<=60),
+	CONSTRAINT check_gender CHECK(gender IN ('Male', 'Female'))
 );
 
-insert into EMP (NAME, AGE, SALARY, DESIGNATION) values('Raju', 25, 30000, 'Tester');
+INSERT INTO employees (name, age, gender, salary, designation, email_id, married, joining_date)
+VALUES ('Alice Johnson', 35, 'Female', 25000.00, 'Manager', 'alice.johnson@example.com', TRUE, '2025-01-01');
 
-insert into EMP (NAME, AGE, SALARY, DESIGNATION) values
-	('Manju', 38, 30000, 'Programmer'),
-	('Sanju', 41, 120000, 'Programmer'),
-	('Daniel', 25, 30000, 'Tester'),
-	('Sunil', 35, 30000, 'Tester');
+INSERT INTO employees (name, age, gender, salary, designation, email_id, married, joining_date, manager_id)
+VALUES ('Bob Smith', 28, 'Male', 20000.00, 'Tester', 'bob.smith@example.com', FALSE, '2025-01-10', 1); 
 
-insert into EMP (NAME, AGE, SALARY, DESIGNATION) values
-	('Manju', 38, 30000, 'Programmer'),
-	('Sanju', 41, 120000, 'Programmer'),
-	('Daniel', 25, 30000, 'Tester'),
-	('Sunil', 35, 30000, 'Tester');
-
-insert into EMP (NAME, AGE, DESIGNATION) values
-	('Manisha', 21, 'Programmer');
-	
+SELECT * FROM employees;
+-- EMPLOYEE
+	--EID (Primary Key)
+	--NAME
+	--AGE (21 to 60)
+	--GENDER (MALE/FEMALE)
+	--SALARY (999999.99)
+	--DESIGNATION (PROGRAMMER/TESTER/ADMIN/MANAGER)
+	--MGR_ID (Pointing to EID)
+	--EMAIL_ID (abc@xyz.com)
+	--MARRIED (true/false)
+	--JOINING_DATE (current_date by default)
