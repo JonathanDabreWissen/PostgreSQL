@@ -262,7 +262,7 @@ end;
 $$ language plpgsql;
 
 create or replace trigger update_emp_trigger 
-before update on employees
+before update, insert on employees
 for each row 
 execute function validate_salary();
 
