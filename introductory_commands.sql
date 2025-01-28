@@ -1,3 +1,16 @@
+-- EMPLOYEE
+	--EID (Primary Key)
+	--NAME
+	--AGE (21 to 60)
+	--GENDER (MALE/FEMALE)
+	--SALARY (999999.99)
+	--DESIGNATION (PROGRAMMER/TESTER/ADMIN/MANAGER)
+	--MGR_ID (Pointing to EID)
+	--EMAIL_ID (abc@xyz.com)
+	--MARRIED (true/false)
+	--JOINING_DATE (current_date by default)
+
+
 select * from employees;
 
 drop table emp;
@@ -137,14 +150,76 @@ GROUP BY
 ORDER BY 
     SUM(salary);
 
--- EMPLOYEE
-	--EID (Primary Key)
-	--NAME
-	--AGE (21 to 60)
-	--GENDER (MALE/FEMALE)
-	--SALARY (999999.99)
-	--DESIGNATION (PROGRAMMER/TESTER/ADMIN/MANAGER)
-	--MGR_ID (Pointing to EID)
-	--EMAIL_ID (abc@xyz.com)
-	--MARRIED (true/false)
-	--JOINING_DATE (current_date by default)
+
+CREATE OR REPLACE PROCEDURE insert_emp_record(
+    e_name VARCHAR(15),
+    e_age SMALLINT,
+    e_salary NUMERIC,
+    e_desig designation_enum,
+    e_gender VARCHAR(10),
+    e_email_id VARCHAR(50),
+    e_married BOOLEAN,
+    e_manager_id INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO employees(name, age, salary, designation, gender, email_id, married, manager_id)
+    VALUES (e_name, e_age, e_salary, e_desig, e_gender, e_email_id, e_married, e_manager_id);
+END;
+$$;
+
+CALL insert_emp_record(
+    'Jonathan'::VARCHAR(15),       -- Explicit cast to VARCHAR(15)
+    34::SMALLINT,                 -- Explicit cast to SMALLINT
+    20000::NUMERIC,               -- Explicit cast to NUMERIC
+    'Manager'::designation_enum,  -- Explicit cast to designation_enum
+    'Male'::VARCHAR(10),          -- Explicit cast to VARCHAR(10)
+    'jonathandabre01@gmail.com'::VARCHAR(50),  -- Explicit cast to VARCHAR(50)
+    TRUE::BOOLEAN,                -- Explicit cast to BOOLEAN
+    1::INT                        -- Explicit cast to INT
+);
+
+
+
+drop procedure abc();
+
+
+create or replace procedure appraisal(
+	id int,
+	amount int
+)
+language plpgsql
+as $$
+begin
+	update employees set salary=salary+amount where eid=id;
+end;
+$$
+
+
+select * from employees;
+
+call appraisal(1, 25000);
+
+
+create or replace function max_salary(desig designation_enum)
+returns table(eid int, name varchar, salary decimal)
+as $$
+begin 
+	return query
+	select e.eid, e.name, e.salary from employees e where e.designation = desig
+	and e.salary = (select max(e2.salary) from employees e2
+	where e2.designation = desig);
+end;
+$$ language plpgsql;
+
+drop function max_salary;
+
+select * from max_salary('Manager':: designation_enum);
+select * from max_salary('Tester':: designation_enum);
+
+
+
+
+
+
