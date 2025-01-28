@@ -218,6 +218,62 @@ drop function max_salary;
 select * from max_salary('Manager':: designation_enum);
 select * from max_salary('Tester':: designation_enum);
 
+-- Windows operating system specific functions
+
+select name, salary, sum(salary) over(order by salary) from employees;
+
+select row_number() over(order by name), name, designation, salary from employees;
+
+select name, salary, rank() over(order by salary desc) from employees;
+
+select name, salary, dense_rank() over(order by salary desc) from employees;
+
+select name, salary, lag(salary) over() from employees;
+
+select name, salary, lead(salary) over() from employees;
+
+
+-- ----
+
+select e.name, e.salary, e.designation 
+from employees e
+where e.salary> (
+	select avg(e2.salary)
+	from employees e2
+	where e2.designation = e.designation
+)
+order by e.designation, e.salary desc;
+
+
+
+with avg_salary as(
+select designation, avg(salary) as avg_salary from emp group by designation;
+)
+
+
+create or replace function validate_salary()
+returns trigger as $$
+begin 
+	if new.salary<120000 then 
+		new.salary = 12000;
+	end if;
+	return new;
+end;
+$$ language plpgsql;
+
+create or replace trigger update_emp_trigger 
+before update on employees
+for each row 
+execute function validate_salary();
+
+
+select * from employees;
+
+update employees set salary = 5000 where eid=2;
+
+
+
+
 
 
 
