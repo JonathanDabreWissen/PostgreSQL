@@ -104,3 +104,8 @@ ORDER BY total_sales DESC
 LIMIT 1;
 
 
+-- Drop table
+drop table sales;
+
+
+
